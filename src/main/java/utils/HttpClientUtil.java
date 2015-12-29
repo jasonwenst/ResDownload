@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,17 +27,24 @@ public class HttpClientUtil {
 		HttpClient client = new HttpClient();
 		GetMethod getMethod = new GetMethod();
 		getMethod.setPath(path);
-		
+		double total;
+		long usedTime;
 		try {
-			
+			long startTime = System.currentTimeMillis();
 			client.executeMethod(getMethod);
 			InputStream resIn = getMethod.getResponseBodyAsStream();
-			out = new FileOutputStream(PropertyUtils.getProperty("savePath")+System.getProperty("file.separator")+FileUtils.getFlieNameFromURL(path));
+			String fileName = PropertyUtils.getProperty("savePath")+System.getProperty("file.separator")+FileUtils.getFlieNameFromURL(path);
+			File file = new File(fileName);
+			if(file.exists()) {
+				log.info(fileName + " is already exist!");
+				return ;
+			}
+			out = new FileOutputStream(fileName+".temp");
 			
 			int len = 0;
 			byte[] b = new byte[1024];
 			double finshLen = 0;
-			double total = getMethod.getResponseContentLength();
+			total = getMethod.getResponseContentLength();
 			while((len = resIn.read(b)) != -1) {
 				out.write(b, 0, len);
 				finshLen += len;
@@ -44,7 +52,15 @@ public class HttpClientUtil {
 			}
 			
 			out.close();
-			in.close();
+			resIn.close();
+			
+			long endTime = System.currentTimeMillis();
+			
+			usedTime = endTime - startTime;
+			
+			log.info(FileUtils.getFileTrasSpeed(total, endTime - startTime));
+			
+			FileUtils.renameFile(fileName+".temp", fileName);
 			
 		} catch (HttpException e) {
 			e.printStackTrace();
@@ -55,7 +71,7 @@ public class HttpClientUtil {
 		} finally {
 		}
 		
-		log.info("download success!");
+		log.info("download success in " + usedTime/1000 + "seconds");
 	}
 	
 }
