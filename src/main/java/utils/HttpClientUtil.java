@@ -16,12 +16,11 @@ import utils.PropertyUtils;
 
 public class HttpClientUtil {
  
-	private static final String URL = "http://mirrors.cnnic.cn/apache/tomcat/tomcat-7/v7.0.67/bin/apache-tomcat-7.0.67.tar.gz";
 	private static Log log = LogFactory.getLog(HttpClientUtil.class);
 	
 	public static void downloadFile(String path) {
 		
-		InputStream in = HttpClientUtil.class.getResourceAsStream("properties.properties");
+		log.info("downloadFile invocked! path : " + path);
 		FileOutputStream out = null;
 		
 		HttpClient client = new HttpClient();
@@ -34,6 +33,7 @@ public class HttpClientUtil {
 			client.executeMethod(getMethod);
 			InputStream resIn = getMethod.getResponseBodyAsStream();
 			String fileName = PropertyUtils.getProperty("savePath")+System.getProperty("file.separator")+FileUtils.getFlieNameFromURL(path);
+			log.info("fileName : " + fileName);
 			File file = new File(fileName);
 			if(file.exists()) {
 				log.info(fileName + " is already exist!");
@@ -48,7 +48,7 @@ public class HttpClientUtil {
 			while((len = resIn.read(b)) != -1) {
 				out.write(b, 0, len);
 				finshLen += len;
-				log.info(finshLen/total);
+				log.debug(finshLen/total);
 			}
 			
 			out.close();
