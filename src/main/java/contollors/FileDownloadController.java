@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import exception.AppException;
 import resDownload.FileDownloadThread;
 import utils.FileUtils;
 import utils.PropertyUtils;
@@ -56,7 +56,7 @@ public class FileDownloadController {
 
 	@RequestMapping(value = "downloadBySFTP", method = RequestMethod.GET)
 	public String downloadBySFTP(HttpServletRequest request, HttpServletResponse response, String fileName)
-			throws UnsupportedEncodingException {
+			throws Exception {
 
 		request.setCharacterEncoding("UTF-8");
 		BufferedInputStream bis = null;
@@ -74,15 +74,12 @@ public class FileDownloadController {
 		long fileLength = new File(
 				PropertyUtils.getProperty("savePath") + System.getProperty("file.separator") + fileName).length();
 
-		// 设置文件输出类型
 		response.setContentType("application/octet-stream");
 		try {
 			response.setHeader("Content-disposition",
 					"attachment; filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
 
-			// 设置输出长度
 			response.setHeader("Content-Length", String.valueOf(fileLength));
-			// 获取输入流
 			bis = new BufferedInputStream(is);
 
 			bos = new BufferedOutputStream(response.getOutputStream());
@@ -96,8 +93,7 @@ public class FileDownloadController {
 			bis.close();
 			bos.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new AppException(e.getMessage());
 		}
 		
 		return "viewFiles";

@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import exception.AppException;
 import utils.FileUtils;
 import utils.PropertyUtils;
 
@@ -18,7 +19,7 @@ public class HttpClientUtil {
  
 	private static Log log = LogFactory.getLog(HttpClientUtil.class);
 	
-	public static void downloadFile(String path) {
+	public static void downloadFile(String path) throws AppException{
 		
 		log.info("downloadFile invocked! path : " + path);
 		FileOutputStream out = null;
@@ -64,11 +65,9 @@ public class HttpClientUtil {
 			FileUtils.renameFile(fileName + "~" + total +"~.temp", fileName);
 			
 		} catch (HttpException e) {
-			e.printStackTrace();
-			return;
+			throw new AppException(e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
-			return;
+			throw new AppException(e.getMessage());
 		} finally {
 		}
 		

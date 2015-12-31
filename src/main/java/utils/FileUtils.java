@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -19,6 +18,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 import entity.FileStatusBean;
+import exception.AppException;
 
 public class FileUtils {
 
@@ -37,7 +37,7 @@ public class FileUtils {
 		log.info("getFlieNameFromURL invocked, url = " + url);
 
 		String fileName = "";
-		Pattern exp = Pattern.compile("^http://[\\w\\.\\-]+(?:/|(?:/[\\w\\.\\-]+)*)?$", Pattern.CASE_INSENSITIVE);
+//		Pattern exp = Pattern.compile("^http://[\\w\\.\\-]+(?:/|(?:/[\\w\\.\\-]+)*)?$", Pattern.CASE_INSENSITIVE);
 
 		// if(!exp.matcher(url).matches()) {
 		// log.info("a terrible url : " + url);
@@ -95,7 +95,8 @@ public class FileUtils {
 		}
 	}
 
-	public static InputStream getInputStreamBySFTP(String ip, String userName, String pwd, String port, String name) {
+	public static InputStream getInputStreamBySFTP(String ip, String userName, String pwd, String port, String name) 
+	throws AppException{
 		
 		log.info("getInputStreamBySFTP invocked!");
 		InputStream in = null;
@@ -108,10 +109,8 @@ public class FileUtils {
 		try {
 			session = jsch.getSession(userName, ip);
 
-			session.setPassword(pwd);// 设置密码
-			// 设置第一次登陆的时候提示，可选值：(ask | yes | no)
+			session.setPassword(pwd);
 			session.setConfig("StrictHostKeyChecking", "no");
-			// 设置登陆超时时间
 			session.connect(30000);
 
 			channel = (Channel) session.openChannel("sftp");
@@ -124,19 +123,12 @@ public class FileUtils {
 
 			sftp.cd(path);
 
-			try {
-				in = sftp.get(name);
-			} catch (SftpException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			in = sftp.get(name);
 
 		} catch (JSchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new AppException(e.getMessage());
 		} catch (SftpException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			throw new AppException(e1.getMessage());
 		}
 		double endTime = System.currentTimeMillis();
 		log.info("get inputStream in " + (endTime-startTime)/1000 + "seconds");
