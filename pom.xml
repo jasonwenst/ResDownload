@@ -44,6 +44,11 @@
 			<artifactId>jsch</artifactId>
 			<version>0.1.53</version>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.slf4j</groupId> -->
+<!-- 			<artifactId>slf4j-api</artifactId> -->
+<!-- 			<version>1.7.13</version> -->
+<!-- 		</dependency> -->
 	</dependencies>
 	<build>
 		<finalName>reDownload</finalName>

@@ -35,11 +35,12 @@ public class HttpClientUtil {
 			String fileName = PropertyUtils.getProperty("savePath")+System.getProperty("file.separator")+FileUtils.getFlieNameFromURL(path);
 			log.info("fileName : " + fileName);
 			File file = new File(fileName);
+			total = getMethod.getResponseContentLength();
 			if(file.exists()) {
 				log.info(fileName + " is already exist!");
 				return ;
 			}
-			out = new FileOutputStream(fileName+".temp");
+			out = new FileOutputStream(fileName + "~" + total +"~.temp");
 			
 			int len = 0;
 			byte[] b = new byte[1024];
@@ -60,7 +61,7 @@ public class HttpClientUtil {
 			
 			log.info(FileUtils.getFileTrasSpeed(total, endTime - startTime));
 			
-			FileUtils.renameFile(fileName+".temp", fileName);
+			FileUtils.renameFile(fileName + "~" + total +"~.temp", fileName);
 			
 		} catch (HttpException e) {
 			e.printStackTrace();

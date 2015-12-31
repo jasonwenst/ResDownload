@@ -1,13 +1,13 @@
 package utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,6 +17,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+
+import entity.FileStatusBean;
 
 public class FileUtils {
 
@@ -32,7 +34,7 @@ public class FileUtils {
 
 	public static String getFlieNameFromURL(String url) {
 
-		log.info("getFlieNameFromURL invocked");
+		log.info("getFlieNameFromURL invocked, url = " + url);
 
 		String fileName = "";
 		Pattern exp = Pattern.compile("^http://[\\w\\.\\-]+(?:/|(?:/[\\w\\.\\-]+)*)?$", Pattern.CASE_INSENSITIVE);
@@ -44,7 +46,7 @@ public class FileUtils {
 
 		String fields[] = url.split("/");
 		fileName = fields[fields.length - 1];
-
+		
 		log.info("getFlieNameFromURL compoleted! fileName = " + fileName);
 		return fileName;
 	}
@@ -77,20 +79,25 @@ public class FileUtils {
 		orgFile.renameTo(destFile);
 	}
 
-	public static List<String> getAllFiles(String path) {
+	public static List<FileStatusBean> getAllFiles(String path) {
 		log.info("getAllFiles invocked! path : " + path);
 		File file = new File(path);
-		List<String> files = new ArrayList<String>();
+		List<FileStatusBean> files = new ArrayList<FileStatusBean>();
 		if (!file.exists()) {
+			log.info(path + " is not exist");
 			return files;
 		} else {
-			files = Arrays.asList(file.list());
-			log.info("files :" + file.list().toString());
+			for(File tempFile : file.listFiles()) {
+				files.add(new FileStatusBean(tempFile.getName(), getTotalLength(tempFile.getName(), tempFile.length()), tempFile.length(), isFileDownloadCompoleted(tempFile.getName())));
+				log.info("find file : " + tempFile.getName() );
+			}
 			return files;
 		}
 	}
 
 	public static InputStream getInputStreamBySFTP(String ip, String userName, String pwd, String port, String name) {
+		
+		log.info("getInputStreamBySFTP invocked!");
 		InputStream in = null;
 
 		JSch jsch = new JSch();
@@ -111,7 +118,7 @@ public class FileUtils {
 			channel.connect(1000);
 			ChannelSftp sftp = (ChannelSftp) channel;
 
-			String path = PropertyUtils.getProperty(isWindows() ? "savePathWindows" : "savePathLinux");
+			String path = PropertyUtils.getProperty("savePath");
 			
 			log.info("path : " + path);
 
@@ -143,6 +150,35 @@ public class FileUtils {
 		}
 		return false;
 	}
+	
+	
+	public static boolean isFileDownloadCompoleted(String fileName) {
+		if(StringUtils.isEmpty(fileName)) {
+			return false;
+		}
+		if(fileName.endsWith(".temp")) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static long getTotalLength(String fileName, long length) {
+		if(StringUtils.isEmpty(fileName)) {
+			return 0;
+		}
+		
+		if(isFileDownloadCompoleted(fileName)) {
+			return length;
+		}
+		
+		String temp = fileName.split("~")[fileName.split("~").length - 2];
+		
+		BigDecimal bd = new BigDecimal(temp); 
+		
+		return bd.longValue();
+	}
+	
+	
 
 	public static void main(String s[]) {
 		// String url =
@@ -151,6 +187,7 @@ public class FileUtils {
 		// System.out.print(getFileTrasSpeed(9000000,11000));
 		// renameFile("C:\\Users\\guolq\\Desktop\\org.txt",
 		// "C:\\Users\\guolq\\Desktop\\dest.txt");
-
+		
+		
 	}
 }
