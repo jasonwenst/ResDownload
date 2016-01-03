@@ -8,8 +8,8 @@ import java.io.InputStream;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import exception.AppException;
 import utils.FileUtils;
@@ -17,11 +17,11 @@ import utils.PropertyUtils;
 
 public class HttpClientUtil {
  
-	private static Log log = LogFactory.getLog(HttpClientUtil.class);
+	private static Logger log = LoggerFactory.getLogger(HttpClientUtil.class);
 	
 	public static void downloadFile(String path) throws AppException{
 		
-		log.info("downloadFile invocked! path : " + path);
+		log.info("downloadFile invocked! path : {}", path);
 		FileOutputStream out = null;
 		
 		HttpClient client = new HttpClient();
@@ -34,11 +34,11 @@ public class HttpClientUtil {
 			client.executeMethod(getMethod);
 			InputStream resIn = getMethod.getResponseBodyAsStream();
 			String fileName = PropertyUtils.getProperty("savePath")+System.getProperty("file.separator")+FileUtils.getFlieNameFromURL(path);
-			log.info("fileName : " + fileName);
+			log.info("fileName : {}" , fileName);
 			File file = new File(fileName);
 			total = getMethod.getResponseContentLength();
 			if(file.exists()) {
-				log.info(fileName + " is already exist!");
+				log.info("{} is already exist!", fileName);
 				return ;
 			}
 			out = new FileOutputStream(fileName + "~" + total +"~.temp");
@@ -50,7 +50,7 @@ public class HttpClientUtil {
 			while((len = resIn.read(b)) != -1) {
 				out.write(b, 0, len);
 				finshLen += len;
-				log.debug(finshLen/total);
+				log.debug(String.valueOf(finshLen/total));
 			}
 			
 			out.close();
@@ -71,7 +71,7 @@ public class HttpClientUtil {
 		} finally {
 		}
 		
-		log.info("download success in " + usedTime/1000 + "seconds");
+		log.info("download success in  {} seconds", usedTime/1000);
 	}
 	
 }

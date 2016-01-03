@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -22,7 +22,7 @@ import exception.AppException;
 
 public class FileUtils {
 
-	public static Log log = LogFactory.getLog(FileUtils.class);
+	public static Logger log = LoggerFactory.getLogger(FileUtils.class);
 
 	static {
 		loadProperty();
@@ -34,7 +34,7 @@ public class FileUtils {
 
 	public static String getFlieNameFromURL(String url) {
 
-		log.info("getFlieNameFromURL invocked, url = " + url);
+		log.info("getFlieNameFromURL invocked, url = {}" , url);
 
 		String fileName = "";
 //		Pattern exp = Pattern.compile("^http://[\\w\\.\\-]+(?:/|(?:/[\\w\\.\\-]+)*)?$", Pattern.CASE_INSENSITIVE);
@@ -47,7 +47,7 @@ public class FileUtils {
 		String fields[] = url.split("/");
 		fileName = fields[fields.length - 1];
 		
-		log.info("getFlieNameFromURL compoleted! fileName = " + fileName);
+		log.info("getFlieNameFromURL compoleted! fileName = {}" , fileName);
 		return fileName;
 	}
 
@@ -80,16 +80,16 @@ public class FileUtils {
 	}
 
 	public static List<FileStatusBean> getAllFiles(String path) {
-		log.info("getAllFiles invocked! path : " + path);
+		log.info("getAllFiles invocked! path : {}" , path);
 		File file = new File(path);
 		List<FileStatusBean> files = new ArrayList<FileStatusBean>();
 		if (!file.exists()) {
-			log.info(path + " is not exist");
+			log.info("{} is not exist", path);
 			return files;
 		} else {
 			for(File tempFile : file.listFiles()) {
 				files.add(new FileStatusBean(tempFile.getName(), getTotalLength(tempFile.getName(), tempFile.length()), tempFile.length(), isFileDownloadCompoleted(tempFile.getName())));
-				log.info("find file : " + tempFile.getName() );
+				log.info("find file : {}" , tempFile.getName() );
 			}
 			return files;
 		}
@@ -119,7 +119,7 @@ public class FileUtils {
 
 			String path = PropertyUtils.getProperty("savePath");
 			
-			log.info("path : " + path);
+			log.info("path : {}" , path);
 
 			sftp.cd(path);
 
@@ -131,7 +131,7 @@ public class FileUtils {
 			throw new AppException(e1.getMessage());
 		}
 		double endTime = System.currentTimeMillis();
-		log.info("get inputStream in " + (endTime-startTime)/1000 + "seconds");
+		log.info("get inputStream in {} seconds", (endTime-startTime)/1000);
 		return in;
 	}
 

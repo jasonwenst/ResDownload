@@ -9,8 +9,8 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,7 +24,7 @@ import utils.PropertyUtils;
 @Controller
 public class FileDownloadController {
 
-	private Log log = LogFactory.getLog(FileDownloadController.class);
+	private Logger log = LoggerFactory.getLogger(FileDownloadController.class);
 
 	@RequestMapping(value = "download", method = RequestMethod.POST)
 	public String download(@RequestParam(value = "path") String path) {
